@@ -1,4 +1,4 @@
-package joyn.kafka.streams;
+package join.kafka.streams;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.streams.*;
@@ -19,7 +19,7 @@ import java.time.Duration;
 
 import java.util.*;
 
-public class KafkaStreamsJoynApp {
+public class KafkaStreamsDemoApp {
     public Topology createTopology() throws IOException {
 
         StreamsBuilder builder = new StreamsBuilder();
@@ -31,18 +31,18 @@ public class KafkaStreamsJoynApp {
         KStream<String, GenericRecord> pageviewskeyed = pageviews.selectKey((String key, GenericRecord value) -> value.get("userid").toString());
         final InputStream
                 pageViewUserSchema =
-                KafkaStreamsJoynApp.class.getClassLoader()
+                KafkaStreamsDemoApp.class.getClassLoader()
                         .getResourceAsStream("userviewsjoin.avsc");
         final Schema schema = new Schema.Parser().parse(pageViewUserSchema);
         final InputStream
                 aggSchemaStream =
-                KafkaStreamsJoynApp.class.getClassLoader()
+                KafkaStreamsDemoApp.class.getClassLoader()
                         .getResourceAsStream("viewaggs.avsc");
         final Schema aggschema = new Schema.Parser().parse(aggSchemaStream);
 
         final InputStream
                 aggSchemaStreamFirst =
-                KafkaStreamsJoynApp.class.getClassLoader()
+                KafkaStreamsDemoApp.class.getClassLoader()
                         .getResourceAsStream("viewaggfirst.avsc");
         final Schema aggschemaFirst = new Schema.Parser().parse(aggSchemaStreamFirst);
         /* joining users with views */
@@ -120,13 +120,13 @@ public class KafkaStreamsJoynApp {
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "sample-joins");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, GenericAvroSerde.class);
         //config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, GenericAvroSerde.class);
         //config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         config.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
         config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, GenericAvroSerde.class);
 
-        KafkaStreamsJoynApp app = new KafkaStreamsJoynApp();
+        KafkaStreamsDemoApp app = new KafkaStreamsDemoApp();
 
         Topology topology = app.createTopology();
 
